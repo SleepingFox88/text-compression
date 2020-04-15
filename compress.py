@@ -26,10 +26,9 @@ for x in range(len(words)):
 
 outputBytes = bytearray()
 
-testString = "firstWord\n\n\nsecondWord"
-testString = testString.split("\n")
-
-print("TestString: ", testString)
+# open file to compress
+with open("compress.txt", 'r') as input:
+    data = input.read()
 
 with open(f"./compressedWords.txt", "w") as compressedWords:
 
@@ -38,43 +37,32 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
         # open file to output to
         with open(f"./compressed.bin", "wb") as output:
 
-            # open file to compress
-            with open("compress.txt", 'r') as input:
-                data = input.read()
+            stringWords = data.split(" ")
 
-                stringWords = data.split(" ")
+            numCompressedWords = 0
 
-                numCompressedWords = 0
+            # for each word
+            for word in stringWords:
 
-                # for each word
-                for word in stringWords:
+                # for each subword (seperated by "\n")
+                containsReturn = "\n" in word
+                subWords = word.split("\n")
 
-                    returnIndex = -1
-
-                    # check for word before any return characters
-                    if "\n" in word:
-                        returnIndex = -1
-                        for x in range(len(word)):
-                            if word[x] == "\n":
-                                returnIndex = x
-                                break
-
-                        # get string before first \n
-                        noReturn = word[:returnIndex]
-
-                    else:
-                        noReturn = word
+                for x in range(len(subWords)):
+                    subWord = subWords[x]
 
                     # make word lowercase for comparisons
-                    lowWord = noReturn.lower()
+                    lowWord = subWord.lower()
 
                     # compress known words
                     if lowWord in words:
                         numCompressedWords = numCompressedWords + 1
 
-                        compressedWords.write("### ")
-                        compressedWords.write(lowWord)
-                        compressedWords.write("\n")
+                        # DEBUG
+                        if True:
+                            compressedWords.write("### ")
+                            compressedWords.write(lowWord)
+                            compressedWords.write("\n")
 
                         intBytes = (words.index(lowWord)).to_bytes(
                             4, byteorder="big", signed=True)
@@ -85,13 +73,15 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
                         outputBytes.append(intBytes[2])
                         outputBytes.append(intBytes[3])
 
-                    # word + punctuation mark
+                    # compressable word + punctuation mark
                     elif lowWord[:-1] in words:
                         numCompressedWords = numCompressedWords + 1
 
-                        compressedWords.write("P## ")
-                        compressedWords.write(lowWord)
-                        compressedWords.write("\n")
+                        # DEBUG
+                        if True:
+                            compressedWords.write("P## ")
+                            compressedWords.write(lowWord)
+                            compressedWords.write("\n")
 
                         intBytes = (words.index(lowWord[:-1])).to_bytes(
                             4, byteorder="big", signed=True)
@@ -107,22 +97,19 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
 
                     # store non compressable strings in plaintext
                     else:
-                        notCompressedWords.write("### ")
-                        notCompressedWords.write(word)
-                        notCompressedWords.write("\n")
 
-                        for char in word:
+                        # DEBUG
+                        if True:
+                            notCompressedWords.write("### ")
+                            notCompressedWords.write(subWord)
+                            notCompressedWords.write("\n")
+
+                        for char in subWord:
                             outputBytes.append(ord(char))
 
-                    if returnIndex != -1:
-                        afterReturn = word[-(len(word) - returnIndex):]
-
-                        notCompressedWords.write("A## ")
-                        notCompressedWords.write(afterReturn)
-                        notCompressedWords.write("\n")
-
-                        for char in afterReturn:
-                            outputBytes.append(ord(char))
+                    # store return characters
+                    if containsReturn and x != (len(subWords) - 1):
+                        outputBytes.append(ord("\n"))
 
             output.write(outputBytes)
 
