@@ -58,7 +58,7 @@ class textCompressor:
                 subWord = subWords[x]
 
                 # compress known words
-                if subWord.lower() in self.words and isValidCapitalization(subWord):
+                if subWord.lower() in self.words and isValidCapitalization(subWord) and len(subWord) > 2:
                     compWordBytes = bytearray(3)
 
                     # DEBUG
