@@ -125,12 +125,12 @@ class textCompressor:
                         # keep this line at the end
                         lastWasPlaintext = True
 
-                    # store return characters
-                    if containsReturn and x != (len(subWords) - 1):
-                        outputBytes.append(ord("\n"))
+                # store return characters
+                if containsReturn and x != (len(subWords) - 1):
+                    outputBytes.append(ord("\n"))
 
-                        # keep this line at the end
-                        lastWasPlaintext = True
+                    # keep this line at the end
+                    lastWasPlaintext = True
 
             # store a space character (unless this is the last word we are dealin with)
             if i < len(stringWords) - 1:
