@@ -66,7 +66,7 @@ class textCompressor:
                         # DEBUG
                         if True:
                             compressedWords.write("### ")
-                            compressedWords.write(subWord.lower())
+                            compressedWords.write(subWord)
                             compressedWords.write("\n")
 
                         # convert word to it's 3 byte index
