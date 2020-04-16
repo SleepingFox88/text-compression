@@ -22,6 +22,7 @@ class textCompressor:
 
     def __init__(self):
         self.words = []
+        self.wordsDict = {}
 
         # Load words from file
         for word in open("words.txt", 'r').readlines():
@@ -34,6 +35,10 @@ class textCompressor:
         # ensure they are all lower case
         for x in range(len(self.words)):
             self.words[x] = self.words[x].lower()
+
+        # convert words array to dict (faster to find indexes of words in array)
+        for x in range(len(self.words)):
+            self.wordsDict[self.words[x]] = x
 
     def compress(self, data):
         print("compressing...")
@@ -71,7 +76,7 @@ class textCompressor:
 
                         # convert word to it's 3 byte index
                         if True:
-                            intBytes = (self.words.index(subWord.lower())).to_bytes(
+                            intBytes = (self.wordsDict[subWord.lower()]).to_bytes(
                                 4, byteorder="big", signed=True)
 
                             compWordBytes[0] = intBytes[1]
