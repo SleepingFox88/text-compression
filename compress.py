@@ -93,13 +93,14 @@ class textCompressor:
                                 compWordBytes[0] = compWordBytes[0] + 64
 
                         # if last byte represents a space
-                        if lastWasPlaintext and outputBytes[len(outputBytes) - 1] == " ":
+                        if lastWasPlaintext and outputBytes[len(outputBytes) - 1] == ord(" "):
+
                             # remove last byte
                             del outputBytes[len(outputBytes) - 1]
 
                             # tell this word to encode a space at the beginning.
                             # spacing information stored in 0001-1000
-                            compWordBytes[0] | 16
+                            compWordBytes[0] = compWordBytes[0] | 16
 
                         # write bytes
                         if True:
@@ -132,7 +133,7 @@ class textCompressor:
                     # keep this line at the end
                     lastWasPlaintext = True
 
-            # store a space character (unless this is the last word we are dealin with)
+            # store a space character (unless this is the last word we are dealing with)
             if i < len(stringWords) - 1:
 
                 if lastWasPlaintext:
