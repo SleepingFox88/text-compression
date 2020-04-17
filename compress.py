@@ -232,7 +232,10 @@ class textCompressor:
                 # keep this line at the end
                 i = i + 1
 
-        return outputBytes
+        # convert bytes to string
+        outputString = outputBytes.decode("utf-8")
+
+        return outputString
 
 
 textCompressor = textCompressor()
@@ -249,12 +252,9 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
         with open(f"./compressed.bin", "wb") as output:
 
             # open file to output to
-            with open(f"./decompressed.txt", "wb") as decompressed:
+            with open(f"./decompressed.txt", "w") as decompressed:
 
                 compressedData = textCompressor.compress(data)
-
                 output.write(compressedData)
-
                 decompressedData = textCompressor.decompress(compressedData)
-
                 decompressed.write(decompressedData)
