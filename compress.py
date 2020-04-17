@@ -258,3 +258,30 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
                 output.write(compressedData)
                 decompressedData = textCompressor.decompress(compressedData)
                 decompressed.write(decompressedData)
+
+                # import cProfile
+                # cProfile.run(
+                #     "textCompressor.compress(data)", sort='cumtime')
+                # print("")
+                # print("")
+                # print("")
+                # print("")
+                # print("=====Decompressing=====")
+                # cProfile.run(
+                #     "textCompressor.decompress(compressedData)", sort='cumtime')
+
+
+# check if results are the same
+areTheSame = False
+if len(data) == len(decompressedData):
+    areTheSame = True
+    for x in range(len(data)):
+        if data[x] != decompressedData[x]:
+            areTheSame = False
+            print("Objects differ at index: ", x)
+            break
+
+if areTheSame:
+    print("Test Passed: Arrays are the same!")
+else:
+    print("Test failed: Arrays differ")
