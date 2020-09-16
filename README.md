@@ -10,6 +10,8 @@ This algorithm typically reduces file sized of english text by 40-50%
 
 - While decompression is straightforward. The compression algorithm must identify compressable words in order to compress them. Words are currently identified by checking if each sequnce of characters between space characters is a word. Some exceptions apply to account for punctuation marks. Improving the identification of words may result in greater compression.
 
+- This algorithm could be optimized for other languages by using a words.txt mapping for their language. So long as words.txt does not exceed 524288 (2^19) words.
+
 ## Sources
 
 words.txt gotten from https://github.com/dwyl/english-words/blob/master/words.txt
