@@ -63,6 +63,7 @@ class textCompressor:
                 tokens = wordpunct_tokenize(subWord)
 
                 for subWord in tokens:
+                    print("subWord: \"" + subWord + "\"")
 
                     # compress known words
                     if len(subWord) > 2 and isValidCapitalization(subWord) and subWord.lower() in self.words:
@@ -141,7 +142,8 @@ class textCompressor:
             # store a space character (unless this is the last word we are dealing with)
             if i < len(stringWords) - 1:
 
-                if lastWasPlaintext:
+                # if lastWasPlaintext OR if last compressed word has already notated a space after it
+                if lastWasPlaintext or outputBytes[len(outputBytes) - 3] & 8 != 0:
                     outputBytes.append(ord(" "))
 
                     # keep this line at the end
@@ -150,8 +152,10 @@ class textCompressor:
                     # tell the last compressed word to store a space after it
                     if True:
                         # spacing information stored in 0001-1000
-                        outputBytes[len(outputBytes) -
-                                    3] = outputBytes[len(outputBytes) - 3] | 8
+                        outputBytes[len(outputBytes) - 3] = outputBytes[len(outputBytes) - 3] | 8
+
+
+                    #outputBytes[len(outputBytes) - 3] | 8
 
         # display compression statistics
         print("file size reduced by",
@@ -273,6 +277,11 @@ with open(f"./compressedWords.txt", "w") as compressedWords:
 
 # check if results are the same
 areTheSame = False
+
+print("len(data): ", len(data))
+print("len(decompressedData): ", len(decompressedData))
+
+
 if len(data) == len(decompressedData):
     areTheSame = True
     for x in range(len(data)):
