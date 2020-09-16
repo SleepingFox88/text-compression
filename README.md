@@ -4,6 +4,12 @@ This repository contains a custom text compression algorithm, optimized for the 
 
 This algorithm typically reduces file sized of english text by 40-50%
 
+## Notes
+
+- The compression algorithm currently only works with input text files containing ASCII characters with values lower than 127
+
+- While decompression is straightforward. The compression algorithm must identify compressable words in order to compress them. Words are currently identified by checking if each sequnce of characters between space characters is a word. Some exceptions apply to account for punctuation marks. Improving the identification of words may result in greater compression.
+
 ## Sources
 
 words.txt gotten from https://github.com/dwyl/english-words/blob/master/words.txt
