@@ -12,9 +12,11 @@ When decoding:
 
 - Checking from the begining of the file, byte by byte. If the highest bit in a byte is a 0, that byte represents a plaintext character and can simply be transfered to the end of the decompressed txt file.
 
-- If the highest bit in a byte is a 1, that byte and the two bytes after it (3 in total) are used to encode a compressed word. The lowest value 19 bits (bit 0-18) store an integer that is mapped to a corresponding word via what words are in words.txt. 
+- If the highest bit in a byte is a 1, that byte and the two bytes after it (3 in total) are used to encode a compressed word. The lowest value 19 bits (bits 0-18) ``0000-0111 1111-1111 1111-1111`` store an integer that is mapped to a corresponding word via what words are in words.txt. 
 
 - Bits 19-20, highest byte ``0001-1000``, store whether there are spaces beside the compressed word. if bit 19 ``0000-1000`` is a 1, add a space (represented here by an underscore) to the right of the decompressed word ``Word_``. If bit 20 ``0001-0000`` is a 1, add a space to the left of the decompressed word ``_Word``
+
+- Bits 21-22 ``0110-0000`` encode the case of the word. ``x00x-xxxx`` means the word is entirly undercase. ``x01x-xxxx`` means the word is entirly upper case. ``x10x-xxxx`` means the first character of the word is upper case. ``x11x-xxxx`` is not yet defined.
 
 ## Notes
 
