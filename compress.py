@@ -5,7 +5,7 @@ from os.path import isfile, join
 import time
 from tqdm import tqdm
 from nltk.tokenize import wordpunct_tokenize
-
+import re
 
 def isValidCapitalization(str):
     if str.islower():
@@ -45,121 +45,85 @@ class textCompressor:
 
         outputBytes = bytearray()
 
-        stringWords = data.split(" ")
+        stringTokens = re.split("(\W)", data)
 
         lastWasPlaintext = False
 
         # for each word
-        for i in tqdm(range(len(stringWords))):
-            word = stringWords[i]
+        for i in tqdm(range(len(stringTokens))):
+            token = stringTokens[i]
 
-            # for each subword (seperated by "\n")
-            containsReturn = "\n" in word
-            subWords = word.split("\n")
+            # compress known words
+            if len(token) > 2 and isValidCapitalization(token) and token.lower() in self.words:
+                compWordBytes = bytearray(3)
 
-            for x in range(len(subWords)):
-                subWord = subWords[x]
+                # DEBUG
+                if True:
+                    compressedWords.write("### ")
+                    compressedWords.write(token)
+                    compressedWords.write("\n")
 
-                tokens = wordpunct_tokenize(subWord)
+                # convert word to it's 3 byte index
+                if True:
+                    intBytes = (self.wordsDict[token.lower()]).to_bytes(
+                        4, byteorder="big", signed=True)
 
-                for subWord in tokens:
-                    print("subWord: \"" + subWord + "\"")
+                    compWordBytes[0] = intBytes[1]
+                    compWordBytes[1] = intBytes[2]
+                    compWordBytes[2] = intBytes[3]
 
-                    # compress known words
-                    if len(subWord) > 2 and isValidCapitalization(subWord) and subWord.lower() in self.words:
-                        compWordBytes = bytearray(3)
+                # store case state in the 0110-0000 bits
+                if True:
+                    # word is lowercase
+                    if token.islower():
+                        compWordBytes[0] = compWordBytes[0] | 0
 
-                        # DEBUG
-                        if True:
-                            compressedWords.write("### ")
-                            compressedWords.write(subWord)
-                            compressedWords.write("\n")
+                    # subword is all upper case
+                    elif token.isupper():
+                        compWordBytes[0] = compWordBytes[0] | 32
 
-                        # convert word to it's 3 byte index
-                        if True:
-                            intBytes = (self.wordsDict[subWord.lower()]).to_bytes(
-                                4, byteorder="big", signed=True)
+                    # only first char is upper
+                    elif token[0].isupper() and token[-(len(token) - 1):].islower():
+                        compWordBytes[0] = compWordBytes[0] + 64
 
-                            compWordBytes[0] = intBytes[1]
-                            compWordBytes[1] = intBytes[2]
-                            compWordBytes[2] = intBytes[3]
+                # if last byte represents a space
+                if lastWasPlaintext and outputBytes[len(outputBytes) - 1] == ord(" "):
 
-                        # store case state in the 0110-0000 bits
-                        if True:
-                            # word is lowercase
-                            if subWord.islower():
-                                compWordBytes[0] = compWordBytes[0] | 0
+                    # remove last byte
+                    del outputBytes[len(outputBytes) - 1]
 
-                            # subword is all upper case
-                            elif subWord.isupper():
-                                compWordBytes[0] = compWordBytes[0] | 32
+                    # tell this word to encode a space at the beginning.
+                    # spacing information stored in 0001-1000
+                    compWordBytes[0] = compWordBytes[0] | 16
 
-                            # only first char is upper
-                            elif subWord[0].isupper() and subWord[-(len(subWord) - 1):].islower():
-                                compWordBytes[0] = compWordBytes[0] + 64
+                # write bytes
+                if True:
+                    # 1000-0000 bit signifies compressed word
+                    outputBytes.append(compWordBytes[0] | 128)
 
-                        # if last byte represents a space
-                        if lastWasPlaintext and outputBytes[len(outputBytes) - 1] == ord(" "):
+                    outputBytes.append(compWordBytes[1])
+                    outputBytes.append(compWordBytes[2])
 
-                            # remove last byte
-                            del outputBytes[len(outputBytes) - 1]
+                # keep this line at the end
+                lastWasPlaintext = False
 
-                            # tell this word to encode a space at the beginning.
-                            # spacing information stored in 0001-1000
-                            compWordBytes[0] = compWordBytes[0] | 16
+            # write unknown char sequences as plain text
+            else:
+                # DEBUG
+                if len(token) > 2:
+                    notCompressedWords.write("### ")
+                    notCompressedWords.write(token)
+                    notCompressedWords.write("\n")
 
-                        # write bytes
-                        if True:
-                            # 1000-0000 bit signifies compressed word
-                            outputBytes.append(compWordBytes[0] | 128)
+                for char in token:
+                    outputBytes.append(ord(char))
 
-                            outputBytes.append(compWordBytes[1])
-                            outputBytes.append(compWordBytes[2])
+                # keep this line at the end
+                lastWasPlaintext = True
 
-                        # keep this line at the end
-                        lastWasPlaintext = False
-
-                    else:
-                        # DEBUG
-                        if len(subWord) > 2:
-                            notCompressedWords.write("### ")
-                            notCompressedWords.write(subWord)
-                            notCompressedWords.write("\n")
-
-                        for char in subWord:
-                            outputBytes.append(ord(char))
-
-                        # keep this line at the end
-                        lastWasPlaintext = True
-
-                # store return characters
-                if containsReturn and x != (len(subWords) - 1):
-                    outputBytes.append(ord("\n"))
-
-                    # keep this line at the end
-                    lastWasPlaintext = True
-
-            # store a space character (unless this is the last word we are dealing with)
-            if i < len(stringWords) - 1:
-
-                # if lastWasPlaintext OR if last compressed word has already notated a space after it
-                if lastWasPlaintext or outputBytes[len(outputBytes) - 3] & 8 != 0:
-                    outputBytes.append(ord(" "))
-
-                    # keep this line at the end
-                    lastWasPlaintext = True
-                else:
-                    # tell the last compressed word to store a space after it
-                    if True:
-                        # spacing information stored in 0001-1000
-                        outputBytes[len(outputBytes) - 3] = outputBytes[len(outputBytes) - 3] | 8
-
-
-                    #outputBytes[len(outputBytes) - 3] | 8
-
+            
         # display compression statistics
-        print("file size reduced by",
-              (1 - (len(outputBytes) / len(data))) * 100, "%")
+        print("file size reduced by", (1 - (len(outputBytes) / len(data))) * 100, "%")
 
         return outputBytes
 
