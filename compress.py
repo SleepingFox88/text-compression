@@ -39,6 +39,7 @@ class textCompressor:
 
         outputBytes = bytearray()
 
+        # split string by every non alphabetical charicter and keep those characters as tokens
         stringTokens = re.split("(\W)", data)
 
         lastWasPlaintext = False
@@ -46,6 +47,11 @@ class textCompressor:
         # for each word
         for i in tqdm(range(len(stringTokens))):
             token = stringTokens[i]
+
+            # convert incompatible characters to *
+                for i in range(len(token)):
+                    if ord(token[i]) > 127:
+                        token = token.replace(token[i], "*")
 
             # compress known words
             if len(token) > 2 and isValidCapitalization(token) and token.lower() in self.words:
