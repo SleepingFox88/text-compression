@@ -49,6 +49,7 @@ class textCompressor:
             token = stringTokens[i]
 
             # convert incompatible characters to *
+            if True:
                 for i in range(len(token)):
                     if ord(token[i]) > 127:
                         token = token.replace(token[i], "*")
@@ -62,6 +63,7 @@ class textCompressor:
                     compressedWords.write("### ")
                     compressedWords.write(token)
                     compressedWords.write("\n")
+                    pass
 
                 # convert word to it's 3 byte index
                 if True:
@@ -114,6 +116,7 @@ class textCompressor:
                     notCompressedWords.write("### ")
                     notCompressedWords.write(token)
                     notCompressedWords.write("\n")
+                    pass
 
                 for char in token:
                     outputBytes.append(ord(char))
